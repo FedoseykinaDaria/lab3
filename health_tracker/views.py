@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import FileResponse, Http404
 from django.views.static import serve
-from .forms import HealthNote
+from .health_form import HealthNote
 from datetime import datetime
 import os
 import uuid
@@ -18,7 +18,7 @@ def SaveUserData(data):
         with open(file_path, 'w') as f:
             json.dump([], f)
     
-    with open(file_path, 'r+') as f:
+    with open(file_path, 'r+', encoding='utf') as f:
         health = json.load(f)
         health.append(data)
         f.seek(0)
@@ -79,7 +79,7 @@ def UploadFile(request):
 
 def ListFiles():
     files = get_file_metadata()
-    return render(request, 'health_home.html', {'files': files})
+    return render(request, 'health_tracker/health_home.html', {'files': files})
 
 def DownloadFile(request, filename):
     file_path = os.path.join(settings.MEDIA_ROOT, filename)
