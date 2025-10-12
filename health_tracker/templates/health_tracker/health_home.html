@@ -12,16 +12,12 @@
             <button> Загрузить файл </button>
         </a>
 
-        {% if files %}
-            <ul>
-                {% for file in files %}
-                    <li>
-                        <span> {{file}} </span>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            Нет файлов.
-        {% endif %}
+        <ul>
+            {% for file in files %}
+                <p><a href="{% url 'JSONInfo' file %}">{{ file }}</a></p>
+            {% empty %}
+                <p>Нет файлов</p>
+            {% endfor %}
+        </ul>
     </body>
 </html>
