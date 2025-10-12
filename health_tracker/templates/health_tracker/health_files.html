@@ -5,6 +5,9 @@
         <title> Ваши файлы </title>
     </head>
     <body>
+        <a href = "{% url 'HomePage' %}">
+            <button> Назад </button>
+        </a>
         <h1> Загрузите файл </h1>
         <p> Добавьте название файла и сам файл, чтобы создать запись </p>
         <form method = 'post' enctype="multipart/form-data">
