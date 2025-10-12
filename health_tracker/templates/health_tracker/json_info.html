@@ -14,7 +14,15 @@
         {% if error %}
             <p>Ошибка: {{ error }}</p>
         {% else %}
-            <pre>{{ data }}</pre>
+            <ul>
+                {% for d in data %}
+                    {% for key, value in d.items %}
+                        <li>
+                            <p>{{ key }}-{{ value }}</p>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
         {% endif %}
     </body>
 </html>
