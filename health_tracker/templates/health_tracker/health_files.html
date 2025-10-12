@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title> Ваши файлы </title>
+    </head>
+    <body>
+        <h1> Загрузите файл </h1>
+        <p> Добавьте название файла и сам файл, чтобы создать запись </p>
+        <form method = 'post' enctype="multipart/form-data">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button type = "submit"> Добавить запись! </button>
+        </form>
+    </body>
+</html>

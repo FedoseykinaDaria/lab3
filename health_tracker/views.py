@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import FileResponse, Http404
 from django.views.static import serve
 from .health_form import HealthNote
+from .file_form import UploadFile
 from datetime import datetime
 import os
 import uuid
@@ -48,43 +49,27 @@ def HealthList(request):
     
     return render(request, 'health_tracker/health_home.html', {'health_notes': health_notes})
 
-#Загрузка файла
-def UploadFile(request):
+def UploadedFileForm(request):
     if request.method == 'POST':
-        form = UploadedFileForm(request.POST, request.FIELS)
+        form = UploadFile(request.POST, request.FILES)
         if form.is_valid():
-            title = form.cleaned_data['title']
-            uploaded_file = form.cleaned_data['file']
+            HandleUploadedFile(form.cleaned_data['file'])
+            return render(request, 'health_tracker/success.html')
 
-            ext = os.path.splitext(uploaded_file.name)[1]
-            unique_name = f"{uuid.uuid4()}{ext}"
-            file_path = os.path.join(settings.MEDIA_ROOT, unique_name)
-
-            with open(file_path, 'wb+') as dest:
-                for chunk in uploaded_file.chunks():
-                    dest.write(chunk)
-
-            save_file_metadata(
-                filename = unique_name,
-                original_name = uploaded_file.name,
-                title = title,
-                size = uploaded_file.size
-            )
-            return redirect('ListFiles')
-    
     else:
-        form = UploadedFileForm()
-    
+        form = UploadFile()
+
     return render(request, 'health_tracker/health_files.html', {'form': form})
 
-def ListFiles():
-    files = get_file_metadata()
-    return render(request, 'health_tracker/health_home.html', {'files': files})
+def HandleUploadedFile(f):
+    name = f.name
+    ext = ''
 
-def DownloadFile(request, filename):
-    file_path = os.path.join(settings.MEDIA_ROOT, filename)
+    if '.' in name:
+        ext = name[name.rindex('.'):]
+        name = name[:name.rindex('.')]
 
-    if os.path.exists(file.path):
-        return serve(request, os.path.basename(file_path), os.path.dirname(file_path))
-    else:
-        raise Http404("Файл не найден")
+    unique_name = str(uuid.uuid4())
+    with open(f"Health/{name}_{unique_name}{ext}", "wb+") as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
