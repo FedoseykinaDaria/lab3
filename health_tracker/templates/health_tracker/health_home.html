@@ -11,5 +11,17 @@
         <a href = "{% url 'UploadedFileForm' %}">
             <button> Загрузить файл </button>
         </a>
+
+        {% if files %}
+            <ul>
+                {% for file in files %}
+                    <li>
+                        <span> {{file}} </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            Нет файлов.
+        {% endif %}
     </body>
 </html>

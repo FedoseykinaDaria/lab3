@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import FileResponse, HttpResponseRedirect
 from django.views.static import serve
+
 from .health_form import HealthNote
 from .file_form import UploadFile
-from datetime import datetime
+
 import os
 import uuid
 import json
@@ -78,4 +79,11 @@ def HandleUploadedFile(f):
 
 #Загрузка домашней страницы
 def HomePage(request):
-    return render(request, 'health_tracker/health_home.html')
+    folder_path = os.path.join(settings.BASE_DIR, 'Health')
+
+    files = []
+    if os.path.exists(folder_path):
+        for file in os.listdir(folder_path):
+            files.append(file)
+
+    return render(request, 'health_tracker/health_home.html', {'files': files})
