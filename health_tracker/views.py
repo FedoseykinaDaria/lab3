@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
-from django.http import FileResponse, Http404
+from django.http import FileResponse, HttpResponseRedirect
 from django.views.static import serve
 from .health_form import HealthNote
 from .file_form import UploadFile
@@ -31,7 +31,7 @@ def HealthForm(request):
         form = HealthNote(request.POST)
         if form.is_valid():
             SaveUserData(form.cleaned_data)
-            return render(request, 'health_tracker/success.html')
+            return HttpResponseRedirect('/')
     
     else: 
         form = HealthNote()
@@ -49,18 +49,20 @@ def HealthList(request):
     
     return render(request, 'health_tracker/health_home.html', {'health_notes': health_notes})
 
+#Зарузка формы загрузки файла
 def UploadedFileForm(request):
     if request.method == 'POST':
         form = UploadFile(request.POST, request.FILES)
         if form.is_valid():
             HandleUploadedFile(form.cleaned_data['file'])
-            return render(request, 'health_tracker/success.html')
+            return HttpResponseRedirect('/')
 
     else:
         form = UploadFile()
 
     return render(request, 'health_tracker/health_files.html', {'form': form})
 
+#Запись файла на сервер
 def HandleUploadedFile(f):
     name = f.name
     ext = ''
@@ -73,3 +75,7 @@ def HandleUploadedFile(f):
     with open(f"Health/{name}_{unique_name}{ext}", "wb+") as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+
+#Загрузка домашней страницы
+def HomePage(request):
+    return render(request, 'health_tracker/health_home.html')
