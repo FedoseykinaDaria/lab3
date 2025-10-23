@@ -1,23 +1,21 @@
-<!DOCTYPE html>
-<html>
-    <head>
-    </head>
-    <body>
-        <p>Добро пожаловать!</p>
-        <p>Здесь на этом сайте вы можете добавить показатели своего здоровья или загрузить их из файла</p>
-        <a href = "{% url 'HealthForm' %}">
-            <button> Добавить запись </button>
-        </a>
-        <a href = "{% url 'UploadedFileForm' %}">
-            <button> Загрузить файл </button>
-        </a>
+{% extends "base.html" %}
+{% block title %} Медицинские показатели {% endblock title %}
+{% block content %}
+    <p style = "font-size: 20px; font-weight: bold;">Добро пожаловать!</p>
+    <p>На этом сайте вы можете добавить показатели своего здоровья или загрузить их из файла</p>
+    <a href = "{% url 'HealthForm' %}">
+        <button> Добавить запись </button>
+    </a>
+    <a href = "{% url 'UploadedFileForm' %}">
+        <button> Загрузить файл </button>
+    </a>
 
-        <ul>
-            {% for file in files %}
-                <p><a href="{% url 'JSONInfo' file %}">{{ file }}</a></p>
-            {% empty %}
-                <p>Нет файлов</p>
-            {% endfor %}
-        </ul>
-    </body>
-</html>
+    <p>Добавленные записи</p>
+    <ul>
+        {% for file, name in file_names.items %}
+            <p><a href="{% url 'JSONInfo' file %}">{{ name }}</a></p>
+        {% empty %}
+            <p> Нет записей </p>
+        {% endfor %}
+    </ul>
+{% endblock content%}

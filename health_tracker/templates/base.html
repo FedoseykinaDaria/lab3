@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title> {% block title %} {% endblock title %} </title>
+        <style>
+            h1{
+                font-size: 32px;
+                font-family: sans-serif;
+            }
+            p{
+                font-size: 16px;
+                font-family: sans-serif;
+            }
+            .content_block{
+                border-color: black;
+                border-style: solid;
+                border-radius: 20px;
+                border-width: 4px;
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                padding: 16px;
+                align-items: center;
+                width:500px;
+                margin: auto;
+                margin-top: 70px;
+            }
+            button{
+                margin: 10px;
+                padding: 5px;
+                border-radius: 10px;
+                font-size: 14px;
+                background-color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div class = "content_block">{% block content %}{% endblock content %}</div>
+    </body>

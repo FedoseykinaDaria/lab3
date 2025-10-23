@@ -1,28 +1,27 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <title> Просмотр файла </title>
-    </head>
-    <body>
-        <a href = "{% url 'HomePage' %}">
-            <button> Назад </button>
-        </a>
-        
-        <h2>{{ name }}</h2>
+{% extends "base.html" %}
+{% block title %} Записать данные {% endblock title %}
+{% block content %}
+    <a href = "{% url 'HomePage' %}">
+        <button> Назад </button>
+    </a>
     
-        {% if error %}
-            <p>Ошибка: {{ error }}</p>
-        {% else %}
-            <ul>
-                {% for d in data %}
-                    {% for key, value in d.items %}
-                        <li>
-                            <p>{{ key }}-{{ value }}</p>
-                        </li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </body>
-</html>
+    {% if error %}
+        <p>Ошибка: {{ error }}</p>
+
+    {% else %}
+        {% for key, value in data.items %}
+            {%if key == name %}
+                <h2>{{user_name}}</h2>
+                <ul>
+                    {% for key_note, value_note in value.items%}
+                        {% if key_note != 'title' %}
+                            <li>
+                                <p>{{ key_note }}-{{ value_note }}</p>
+                            </li>
+                        {% endif %}
+                    {% endfor %}                        
+                </ul>
+            {%endif%}
+        {% endfor %}
+    {% endif %}
+{% endblock content %}

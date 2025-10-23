@@ -1,19 +1,14 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <title> Ваши медицинские данные </title>
-    </head>
-    <body>
-        <a href = "{% url 'HomePage' %}">
-            <button> Назад </button>
-        </a>
-        <h1> Медицинские показатели </h1>
-        <p> Заполните все поля и добавьте свои данные, чтобы создать запись </p>
-        <form method = 'post'>
-            {% csrf_token %}
-            {{form.as_p}}
-            <button type = "submit"> Добавить запись! </button>
-        </form>
-    </body>
-</html>
+{% extends "base.html" %}
+{% block title %} Записать данные {% endblock title %}
+{% block content %}
+    <a href = "{% url 'HomePage' %}">
+        <button> Назад </button>
+    </a>
+    <h1> Медицинские показатели </h1>
+    <p> Заполните все поля и добавьте свои данные, чтобы создать запись </p>
+    <form method = 'post'>
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type = "submit"> Добавить запись! </button>
+    </form>
+{% endblock content %}

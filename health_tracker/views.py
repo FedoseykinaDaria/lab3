@@ -10,22 +10,25 @@ import os
 import uuid
 import json
 
+folder_path = os.path.join(settings.BASE_DIR, 'Health')
+file_names = {}
+
 #Сохранение данных с формы пользователя
 def SaveUserData(data):
-    folder_path = os.path.join(settings.BASE_DIR, 'Health')
     os.makedirs(folder_path, exist_ok = True)
 
-    file_name = FileName('health_note', '.json')
+    file_name = FileName('.json')
 
-    file_path = os.path.join(folder_path, file_name)
+    file_path = os.path.join(folder_path, 'health.json')
     if not os.path.exists(file_path):
         with open(file_path, 'w') as f:
-            json.dump([], f)
+            json.dump({}, f)
     
-    with open(file_path, 'r+', encoding='utf') as f:
-        health = json.load(f)
-        health.append(data)
-        f.seek(0)
+    with open(file_path, 'r+', encoding='utf-8') as f:
+        health = dict(json.load(f))
+        data['title'] =  "HealthNote_" + data['name'] 
+        health[file_name] = data
+        f.seek(0, 0)
         json.dump(health, f, ensure_ascii = False, indent = 4)
 
 #Загрузка формы
@@ -41,23 +44,12 @@ def HealthForm(request):
     
     return render(request, 'health_tracker/health_form.html', {'form': form})
 
-#Загрузка списка записей на домашнюю страницу
-#def HealthList(request):
-#    file_path = os.path.join(settings.BASE_DIR, 'Health', 'health.json')
-#    health_notes = []
-
-#    if os.path.exists(file_path):
-#        with open(file_path, 'r') as f:
-#            health_notes = json.load(f)
-    
-#    return render(request, 'health_tracker/health_home.html', {'health_notes': health_notes})
-
 #Зарузка формы загрузки файла
 def UploadedFileForm(request):
     if request.method == 'POST':
         form = UploadFile(request.POST, request.FILES)
         if form.is_valid():
-            HandleUploadedFile(form.cleaned_data['title'], form.cleaned_data['file'])
+            HandleUploadedFile(form.cleaned_data, request.FILES['file'])
             return HttpResponseRedirect('/')
 
     else:
@@ -66,39 +58,59 @@ def UploadedFileForm(request):
     return render(request, 'health_tracker/health_files.html', {'form': form})
 
 #Запись файла на сервер
-def HandleUploadedFile(title, file):
-    with open(f"Health/{FileName(title, file)}", "wb+") as destination:
-        for chunk in file.chunks():
-            destination.write(chunk)
+def HandleUploadedFile(data, upload_file):
+    upload_file.seek(0)
+    upload_data = upload_file.read().decode('utf-8')
+    
+    new_data = json.loads(upload_data)
+
+    file_path = os.path.join(folder_path, 'health.json')
+
+    os.makedirs(folder_path, exist_ok = True)
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        existing_data = dict(json.load(f))
+
+    if isinstance(new_data, dict):
+        for key, value in new_data.items():
+            unique_name = FileName('.json')
+            existing_data[unique_name] = value
+            file_names[unique_name] = f"{data['title']}_{upload_file.name}"
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(existing_data, f, ensure_ascii = False, indent = 4)
 
 #Загрузка домашней страницы
 def HomePage(request):
-    folder_path = os.path.join(settings.BASE_DIR, 'Health')
+    file_path = os.path.join(folder_path, 'health.json')
 
-    files = []
-    if os.path.exists(folder_path):
-        for file in os.listdir(folder_path):
-            files.append(file)
+    if not os.path.exists(file_path):
+        with open(file_path, 'w') as f:
+            json.dump({}, f)
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        health = dict(json.load(f))
+        for key, value in health.items():
+            file_names[key] = value['title']
 
-    return render(request, 'health_tracker/health_home.html', {'files': files})
+    return render(request, 'health_tracker/health_home.html', {'file_names': file_names})
 
+#Передача информации о файле
 def JSONInfo(request, name):
-    file_path = os.path.join(settings.BASE_DIR, 'Health', name)
+    file_path = os.path.join(settings.BASE_DIR, 'Health', 'health.json')
 
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            return render(request, 'health_tracker/json_info.html', {'name': name, 'data': data})
+            return render(request, 'health_tracker/json_info.html', {'name': name, 'data': data, 'user_name':file_names[name]})
         except:
             return render(request, 'health_tracker/json_info.html', {'name': name, 'error': 'Ошибка чтения'})
     else:
         return render(request, 'health_tracker/json_info.html', {'name': name, 'error': 'Файл не найден'})
 
 #Генерация уникального имения для файла
-def FileName(title, file):
-    name = title
-
+def FileName(file):
     if type(file) == str:
         ext = file
     else:
@@ -110,4 +122,4 @@ def FileName(title, file):
 
     unique_name = str(uuid.uuid4())
     
-    return f"{name}_{unique_name}{ext}"
+    return f"{unique_name}{ext}"
