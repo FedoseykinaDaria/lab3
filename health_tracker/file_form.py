@@ -2,7 +2,7 @@ from django import forms
 import json
 
 class UploadFile(forms.Form):
-    title = forms.CharField(label = "Ввведите имя файла:", max_length=100)
+    user_title = forms.CharField(label = "Ввведите имя файла:", max_length=100)
     file = forms.FileField(label = "Загрузите свой файл:")
 
     def clean(self):
@@ -13,16 +13,22 @@ class UploadFile(forms.Form):
             raise forms.ValidationError("Непозволительный формат. Файл должен иметь расширение .json")
         
         try:
-            file_data = uploaded_file.read().decode('utf-8')
+            file_data = file.read().decode('utf-8')
             data = json.loads(file_data)
             
             if not isinstance(data, dict):
-                raise forms.ValidationError("JSON должен иметь тип 'dict'")
+                raise forms.ValidationError("Данные в файле должны иметь тип 'dict'")
             
-            if isinstance(json_data, dict):
-                expected_fields = ['name', 'age', 'pressureUP', 'pressureDOWN', 'cholesterol', 'glucose', 'sleep_time', 'BMI']
-                if not any(field in json_data for field in expected_fields):
-                    raise forms.ValidationError("Нарушена структура загружаемого файла")
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    fields = ["name", "age", "pressureUP", "pressureDOWN", "cholesterol", "glucose", "sleep_time", "BMI", "title"]
+                    error = ""
+                    for f in fields:
+                        if f not in value:
+                            error = error + ', ' + f
+            if len(error) != 0:
+                error = "В файле отсутствуют значения полей: " + error
+                raise forms.ValidationError(error)
             
             file.seek(0)
             
@@ -30,5 +36,3 @@ class UploadFile(forms.Form):
             raise forms.ValidationError(f"Ошибка в формате JSON: {str(e)}")
         except Exception as e:
             raise forms.ValidationError(f"Ошибка при чтении файла: {str(e)}")
-        
-        return file

@@ -75,7 +75,7 @@ def HandleUploadedFile(data, upload_file):
         for key, value in new_data.items():
             unique_name = FileName('.json')
             existing_data[unique_name] = value
-            file_names[unique_name] = f"{data['title']}_{upload_file.name}"
+            value['title'] = data['user_title']
     
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(existing_data, f, ensure_ascii = False, indent = 4)
